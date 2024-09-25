@@ -1,0 +1,3 @@
+/home/este/simpleProject/build/CMakeFiles/display_image.dir
+/home/este/simpleProject/build/CMakeFiles/edit_cache.dir
+/home/este/simpleProject/build/CMakeFiles/rebuild_cache.dir
