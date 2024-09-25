@@ -9,7 +9,7 @@ int main() {
         std::cerr << "Could not open or find the image" << std::endl;
         return -1;
     }
- 
+  
     // Create a window
     cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
 
