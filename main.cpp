@@ -1,5 +1,6 @@
 #include <opencv2/opencv.hpp>
 
+//J'ajoute un commentaire pour tester le push
 // Load an image from file
 cv::Mat load_image(std::string name) {
     // Load an image from file
