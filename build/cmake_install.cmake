@@ -1,4 +1,4 @@
-# Install script for directory: /home/este/simpleProject
+# Install script for directory: /home/emma/Video-Projector-Laser
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/este/simpleProject/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/emma/Video-Projector-Laser/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

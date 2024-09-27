@@ -1,4 +1,4 @@
-CMakeFiles/main.dir/main.cpp.o: /home/este/simpleProject/main.cpp \
+CMakeFiles/main.dir/main.cpp.o: /home/emma/Video-Projector-Laser/main.cpp \
  /usr/include/stdc-predef.h /usr/include/opencv4/opencv2/opencv.hpp \
  /usr/include/opencv4/opencv2/opencv_modules.hpp \
  /usr/include/opencv4/opencv2/core.hpp \

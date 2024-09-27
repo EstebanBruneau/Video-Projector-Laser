@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/SimpleProject.dir/main.cpp.o -o SimpleProject 
