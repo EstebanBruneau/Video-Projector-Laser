@@ -4,7 +4,7 @@
 // Load an image from file
 cv::Mat load_image(std::string name) {
     // Load an image from file
-    cv::Mat image = cv::imread(name, cv::IMREAD_COLOR);
+    cv::Mat image = cv::imread("../image/"+name, cv::IMREAD_COLOR);
 
     // Check if the image was loaded successfully
     if (image.empty()) {
@@ -85,10 +85,20 @@ void show_split_image(cv::Mat image) {
     }
 }
 
-int main() {
-    cv::Mat img = load_image("green.png");
+//redimensionne l'image
+cv::Mat resize_image(cv::Mat image, int width, int height) {
+    cv::Mat resized_image;
+    cv::resize(image, resized_image, cv::Size(width, height));
+    return resized_image;
+}
 
-    print_vector(split_image_to_vector(img, 10, 10));
+int main() {
+    cv::Mat img = load_image("CaptureCouleur.PNG");
+    show_image(img);
+    img=resize_image(img, 1000, 1000);
+    show_image(img);
+
+    //print_vector(split_image_to_vector(img, 10, 10));
 
     std::cout << "Vector size: " << split_image_to_vector(img, 10, 10)[0][0].size() << std::endl;
 
