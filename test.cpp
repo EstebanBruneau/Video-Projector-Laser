@@ -51,7 +51,7 @@ int main(void){
 
 
     while(1){
-        printf("on attend\n");
+        
     }
 
     
