@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(DisplayImage)
 
-# Set OpenCV directory
-set(OpenCV_DIR /path/to/opencv/build)
+
+#set(OpenCV_DIR /path/to/opencv/build)
 
 # Find OpenCV package
 find_package(OpenCV REQUIRED)

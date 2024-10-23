@@ -6,7 +6,7 @@ This project involves the development of a laser video projector system. The sys
 
 - **Image Dimension**: 100x100 pixels (10000 pixels) - **Validated**
 - **Frame Rate**: 10 images/second - **Not Validated**
-- **Image Size**: 30KB/image (3 bytes/pixel) - **Not Validated**
+- **Image Size**: 30KB/image (3 bytes/pixel) - **Validated**
 - **Data Transmission**: Line-by-line transmission to microcontrollers - **Not Validated**
 - **Buffer Function**: Manages timing of data transmission - **Not Validated**
 

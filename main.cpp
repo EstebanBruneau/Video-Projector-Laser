@@ -1,10 +1,16 @@
 #include <opencv2/opencv.hpp>
+#include <iostream>
+#include <stdexcept>
 
-//J'ajoute un commentaire pour tester le push
 // Load an image from file
-cv::Mat load_image(std::string name) {
+cv::Mat load_image(const std::string& name) {
+    // Check if the name is empty
+    if (name.empty()) {
+        throw std::logic_error("Image name cannot be empty");
+    }
+
     // Load an image from file
-    cv::Mat image = cv::imread("../image/"+name, cv::IMREAD_COLOR);
+    cv::Mat image = cv::imread("../image/" + name, cv::IMREAD_COLOR);
 
     // Check if the image was loaded successfully
     if (image.empty()) {
@@ -92,8 +98,8 @@ cv::Mat resize_image(cv::Mat image, int width, int height) {
     return resized_image;
 }
 
-int main() {
-    cv::Mat img = load_image("CaptureCouleur.PNG");
+int main(int argc, char** argv) {
+    cv::Mat img = load_image(argv[1]);
     show_image(img);
     img=resize_image(img, 1000, 1000);
     show_image(img);
