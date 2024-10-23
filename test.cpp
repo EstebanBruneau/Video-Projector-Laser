@@ -39,10 +39,11 @@ int main(void){
     }
     printf("WiringPi setup\n");
     wiringPiSetup () ;
+
     wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0) ;
     
     while(1){
-        // on attend
+        printf("on attend\n");
     }
 
     
