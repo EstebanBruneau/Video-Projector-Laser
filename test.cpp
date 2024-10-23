@@ -54,9 +54,9 @@ int main(void){
 
 
     while(1){
-        if status == 1{
+        if (status == 1){
             printf("Interrupt 0\n");
-            break
+            break;
         }
     }
 
