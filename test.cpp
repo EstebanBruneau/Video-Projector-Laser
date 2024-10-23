@@ -31,6 +31,12 @@ void myInterrupt0 (void) {
     return;
 }
 
+void myInterrupt1 (void) {
+    printf("Interrupt 1\n");
+    changement_etat();
+    return;
+}
+
 int main(void){
     int error = wiringPiSetupGpio();
     if(error == -1){
@@ -41,7 +47,9 @@ int main(void){
     wiringPiSetup () ;
 
     wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0) ;
-    
+    wiringPiISR (0, INT_EDGE_RISING, &myInterrupt1) ;
+
+
     while(1){
         printf("on attend\n");
     }
