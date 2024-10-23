@@ -4,7 +4,7 @@
 #include <circle/interrupt.h>
 #include <iostream>
 
-#define LED_PIN 26
+#define LED_PIN 29
 
 /*
 régler pin mode up et down
