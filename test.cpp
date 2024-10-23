@@ -46,8 +46,8 @@ int main(void){
     printf("WiringPi setup\n");
     wiringPiSetup () ;
 
-    wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0) ;
     wiringPiISR (0, INT_EDGE_RISING, &myInterrupt1) ;
+    // wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0) ;
 
 
     while(1){
