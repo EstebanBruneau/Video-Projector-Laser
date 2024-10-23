@@ -47,19 +47,18 @@ int main(void){
         return 1;
     }
     printf("WiringPi setup\n");
-    wiringPiSetup () ;
 
     // wiringPiISR (0, INT_EDGE_RISING, &myInterrupt1) ;
     // wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0) ;
 
-    pinMode(28, INPUT);
+    pinMode(26, INPUT);
 
     while(1){
         // if (status == 1){
         //     printf("Interrupt 0\n");
         //     break;
         // }
-        printf("%d\n", digitalRead(28));
+        printf("%d\n", digitalRead(26));
         delay(100);
     }
 
