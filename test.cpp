@@ -1,8 +1,6 @@
 #include <vector>
 #include <wiringPi.h>
 #include <stdio.h>
-#include <circle/interrupt.h>
-#include <iostream>
 
 #define LED_PIN 29
 
