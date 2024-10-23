@@ -59,7 +59,8 @@ int main(void){
         //     printf("Interrupt 0\n");
         //     break;
         // }
-        printf("%d", digitalRead(0));
+        printf("%d\n", digitalRead(0));
+        delay(100);
     }
 
     
