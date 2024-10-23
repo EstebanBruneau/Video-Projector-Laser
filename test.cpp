@@ -52,14 +52,14 @@ int main(void){
     // wiringPiISR (0, INT_EDGE_RISING, &myInterrupt1) ;
     // wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0) ;
 
-    pinMode(0, INPUT);
+    pinMode(28, INPUT);
 
     while(1){
         // if (status == 1){
         //     printf("Interrupt 0\n");
         //     break;
         // }
-        printf("%d\n", digitalRead(0));
+        printf("%d\n", digitalRead(28));
         delay(100);
     }
 
