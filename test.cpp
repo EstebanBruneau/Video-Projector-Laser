@@ -1,4 +1,4 @@
-#include <vector>
+// #include <vector>
 #include <wiringPi.h>
 #include <stdio.h>
 
@@ -15,7 +15,7 @@ definir l'interrupt (sur quel Pin)
 wiringpi ISR
 */
 
-std::vector<std::vector<int,int>> list_etat;
+// std::vector<std::vector<int,int>> list_etat;
 
 void changement_etat(){
     if(digitalRead(LED_PIN) == 0){
