@@ -49,15 +49,17 @@ int main(void){
     printf("WiringPi setup\n");
     wiringPiSetup () ;
 
-    wiringPiISR (0, INT_EDGE_RISING, &myInterrupt1) ;
+    // wiringPiISR (0, INT_EDGE_RISING, &myInterrupt1) ;
     // wiringPiISR (0, INT_EDGE_FALLING, &myInterrupt0) ;
 
+    pinMode(0, INPUT);
 
     while(1){
-        if (status == 1){
-            printf("Interrupt 0\n");
-            break;
-        }
+        // if (status == 1){
+        //     printf("Interrupt 0\n");
+        //     break;
+        // }
+        printf("%d", digitalRead(0));
     }
 
     
