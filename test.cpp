@@ -4,6 +4,8 @@
 
 #define LED_PIN 29
 
+int status = 0;
+
 /*
 régler pin mode up et down
 simuler signal carré fréquence à def
@@ -18,6 +20,7 @@ wiringpi ISR
 // std::vector<std::vector<int,int>> list_etat;
 
 void changement_etat(){
+    status = 1;
     if(digitalRead(LED_PIN) == 0){
         digitalWrite(LED_PIN, 1);
     }else{
@@ -51,7 +54,10 @@ int main(void){
 
 
     while(1){
-        
+        if status == 1{
+            printf("Interrupt 0\n");
+            break
+        }
     }
 
     
