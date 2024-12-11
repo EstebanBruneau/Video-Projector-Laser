@@ -21,12 +21,24 @@ cv::Mat load_image(const std::string& name) {
     return image;
 }
 
-std::vector<std::vector<std::vector<int>>> split_image_to_vector(const cv::Mat& image) {
+int seuil(int pixel, int plages) {
+    int plage = 256 / plages;
+    int res = 0;
+    for (int i = 0; i < plages; i++) {
+        if (pixel >= i * plage / plages && pixel < (i + 1) * plage / plages) {
+            res = i * plage / plages;
+        }
+    }
+    return res;
+}
+
+std::vector<std::vector<std::vector<int>>> split_image_to_vector(const cv::Mat& image, int plage) {
     std::vector<std::vector<std::vector<int>>> channels(image.rows, std::vector<std::vector<int>>(image.cols, std::vector<int>(image.channels())));
     for (int i = 0; i < image.rows; i++) {
         for (int j = 0; j < image.cols; j++) {
             for (int k = 0; k < image.channels(); k++) {
-                channels[i][j][k] = image.at<cv::Vec3b>(i, j)[k];
+                int res = seuil(image.at<cv::Vec3b>(i, j)[k], plage);
+                channels[i][j][k] = res;
             }
         }
     }
@@ -45,7 +57,7 @@ std::vector<std::vector<std::vector<int>>> process(cv::Mat frame, char** argv) {
     int height = std::stoi(argv[2]);
     int width = std::stoi(argv[3]);
     cv::Mat imgResized = resize_image(img, height, width);
-    return split_image_to_vector(imgResized);
+    return split_image_to_vector(imgResized, std::stoi(argv[4]));
 }
 
 int main(int argc, char** argv) {
