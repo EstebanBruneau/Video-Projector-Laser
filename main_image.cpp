@@ -1,6 +1,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 // Load an image from file
 cv::Mat load_image(const std::string& name) {
@@ -40,8 +41,8 @@ std::vector<cv::Mat> split_image(cv::Mat image) {
     return channels;
 }
 
-// // split image to vector
-// std::vector<std::vector<std::vector<int>>> split_image_to_vector(cv::Mat image) {
+// split image to vector
+// std::vector<std::vector<std::vector<int>>> split_image_to_vector(const cv::Mat& image) {
 //     std::vector<std::vector<std::vector<int>>> channels;
 //     for (int i = 0; i < image.rows; i++) {
 //         std::vector<std::vector<int>> row;
@@ -69,6 +70,19 @@ std::vector<std::vector<std::vector<int>>> split_image_to_vector(cv::Mat image, 
     }
     return channels;
 }
+
+// std::vector<std::vector<std::vector<int>>> split_image_to_vector(const cv::Mat& image) {
+//     std::vector<std::vector<std::vector<int>>> channels(image.rows, std::vector<std::vector<int>>(image.cols, std::vector<int>(image.channels())));
+//     for (int i = 0; i < image.rows; i++) {
+//         for (int j = 0; j < image.cols; j++) {
+//             for (int k = 0; k < image.channels(); k++) {
+//                 channels[i][j][k] = image.at<cv::Vec3b>(i, j)[k];
+//                 //std::cout<< "pixel" << channels[i][j][k] << std::endl;
+//             }
+//         }
+//     }
+//     return channels;
+// }
 
 // print std::vector<std::vector<std::vector<int>>>
 void print_vector(std::vector<std::vector<std::vector<int>>> channels) {
@@ -100,13 +114,17 @@ cv::Mat resize_image(cv::Mat image, int width, int height) {
 
 int main(int argc, char** argv) {
     cv::Mat img = load_image(argv[1]);
-    show_image(img);
+    cv::Mat imgResized=resize_image(img, 100, 100);
+    show_image(imgResized);
+    print_vector(split_image_to_vector(imgResized,100,100));
+
+    /*show_image(img);
     img=resize_image(img, 1000, 1000);
-    show_image(img);
+    show_image(img);*/
 
     //print_vector(split_image_to_vector(img, 10, 10));
 
-    std::cout << "Vector size: " << split_image_to_vector(img, 10, 10)[0][0].size() << std::endl;
+    //std::cout << "Vector size: " << split_image_to_vector(img, 10, 10)[0][0].size() << std::endl;
 
     return 0;
 }

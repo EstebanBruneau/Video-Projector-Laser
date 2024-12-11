@@ -2,6 +2,22 @@
 
 This project involves the development of a laser video projector system. The system processes images and sends them to microcontrollers for projection.
 
+# Ce qu'il reste à faire
+raspi:
+Régler l'intensité lumineuse des LED
+Clock
+
+Questions:
+Parcours et envoie des données (ordre d'envoi)?
+Images fixe(parcours haut->bas/bas->haut)? haut->bas et gauche->droite
+
+Code:
+split video to image
+image to vector -> Attention on est pas en RGB mais en BGR
+print vector
+
+Manipulation de la matrice image (en fonction des besoins du groupe)
+
 ## Features
 
 - **Image Dimension**: 100x100 pixels (10000 pixels) - **Validated**
