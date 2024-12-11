@@ -3,46 +3,34 @@
 #include <stdexcept>
 #include <vector>
 
+// Load an image from file
+cv::Mat load_image(const std::string& name) {
+    // Check if the name is empty
+    if (name.empty()) {
+        throw std::logic_error("Image name cannot be empty");
+    }
 
-// split image
-std::vector<cv::Mat> split_image(cv::Mat image) {
-    std::vector<cv::Mat> channels;
-    cv::split(image, channels);
-    return channels;
+    // Load an image from file
+    cv::Mat image = cv::imread("../image/" + name, cv::IMREAD_COLOR);
+
+    // Check if the image was loaded successfully
+    if (image.empty()) {
+        std::cerr << "Could not open or find the image" << std::endl;
+        return cv::Mat();
+    }
+    return image;
 }
 
-// split image to vector with specified size
-std::vector<std::vector<std::vector<int>>> split_image_to_vector(cv::Mat image, int num_rows, int num_cols) {
-    std::vector<std::vector<std::vector<int>>> channels(num_rows, std::vector<std::vector<int>>(num_cols, std::vector<int>(image.channels())));
-    for (int i = 0; i < num_rows; i++) {
-        for (int j = 0; j < num_cols; j++) {
+std::vector<std::vector<std::vector<int>>> split_image_to_vector(const cv::Mat& image) {
+    std::vector<std::vector<std::vector<int>>> channels(image.rows, std::vector<std::vector<int>>(image.cols, std::vector<int>(image.channels())));
+    for (int i = 0; i < image.rows; i++) {
+        for (int j = 0; j < image.cols; j++) {
             for (int k = 0; k < image.channels(); k++) {
                 channels[i][j][k] = image.at<cv::Vec3b>(i, j)[k];
             }
         }
     }
     return channels;
-}
-
-// Show an image
-void show_image(cv::Mat image) {
-    
-    // Create a window
-    cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
-
-    // Show the image inside the window
-    cv::imshow("Display window", image);
-
-    // Wait for a keystroke in the window
-    cv::waitKey(0);
-}
-
-// show split image
-void show_split_image(cv::Mat image) {
-    std::vector<cv::Mat> channels = split_image(image);
-    for (int i = 0; i < channels.size(); i++) {
-        show_image(channels[i]);
-    }
 }
 
 //redimensionne l'image
@@ -52,32 +40,30 @@ cv::Mat resize_image(cv::Mat image, int width, int height) {
     return resized_image;
 }
 
-// show video
-void show_video(cv::VideoCapture video, int width, int height) {
+std::vector<std::vector<std::vector<int>>> process(cv::Mat frame, char** argv) {
+    cv::Mat img = frame;
+    int height = std::stoi(argv[2]);
+    int width = std::stoi(argv[3]);
+    cv::Mat imgResized = resize_image(img, height, width);
+    return split_image_to_vector(imgResized);
+}
+
+int main(int argc, char** argv) {
+    cv::VideoCapture video("../Video/Video.mp4");
+    if (!video.isOpened()) {
+        throw std::runtime_error("Could not open video file");
+    }
     cv::Mat frame;
     while (true) {
         video >> frame;
         if (frame.empty()) {
             break;
         }
-        cv::imshow("Display window", resize_image(frame, width, height));
+        std::vector<std::vector<std::vector<int>>> channels = process(frame, argv);
+        std::cout << "channels: " << channels.size() << std::endl;
         if (cv::waitKey(30) >= 0) {
             break;
         }
     }
-}
-
-int main(int argc, char** argv) {
-
-    //load video
-    cv::VideoCapture video("../Video/Video.mp4");
-    if (!video.isOpened()) {
-        throw std::runtime_error("Could not open video file");
-    }
-
-    //show video
-    show_video(video, 100, 100);
-
     return 0;
-
 }

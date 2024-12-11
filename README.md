@@ -7,6 +7,8 @@ raspi:
 Régler l'intensité lumineuse des LED
 Clock
 
+
+
 Questions:
 Parcours et envoie des données (ordre d'envoi)?
 Images fixe(parcours haut->bas/bas->haut)? haut->bas et gauche->droite
@@ -15,6 +17,8 @@ Code:
 split video to image
 image to vector -> Attention on est pas en RGB mais en BGR
 print vector
+
+Seuil (+ de 128 => 1 sinon 0)
 
 Manipulation de la matrice image (en fonction des besoins du groupe)
 
