@@ -4,4 +4,5 @@
 *.cmake
 Makefile
 cmake_install.cmake
+.vscode/
 **/build/
