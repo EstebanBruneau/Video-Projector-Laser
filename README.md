@@ -22,6 +22,13 @@ Seuil (+ de 128 => 1 sinon 0)
 
 Manipulation de la matrice image (en fonction des besoins du groupe)
 
+## Objectif
+
+Faire clignoter 3 led colorés représentants les couleurs RGB :
+- Dans l'IDE espressif récupérer une image
+- Découper l'image en matrice (à l'aide de la bibliothèque opencv)
+- renvoyer les valeurs RGB sur 3 pins différents 
+
 ## Features
 
 - **Image Dimension**: 100x100 pixels (10000 pixels) - **Validated**
