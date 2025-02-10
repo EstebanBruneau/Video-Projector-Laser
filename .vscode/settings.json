@@ -1,5 +1,7 @@
 {
     "files.associations": {
         "ostream": "cpp"
-    }
+    },
+    "idf.espIdfPathWin": "c:\\Espressif\\frameworks\\esp-idf-v5.3.2",
+    "idf.toolsPathWin": "C:\\Users\\esteb\\.espressif"
 }
