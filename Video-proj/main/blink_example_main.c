@@ -15,7 +15,7 @@
 #define LEDC_FREQUENCY      (5000) // Frequency in Hertz. Set frequency at 5 kHz
 
 static const char *TAG = "Blink_GPIO";
-static uint8_t s_led_state = 0; // État de la LED (0 = OFF, 1 = ON)
+// static uint8_t s_led_state = 0; // État de la LED (0 = OFF, 1 = ON)
 
 static void configure_led(void)
 {
