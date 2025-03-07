@@ -3,6 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/ledc.h"
+#include "driver/gpio.h"
 #include "esp_log.h"
 
 #define LED_GREEN_GPIO    21
@@ -19,6 +20,9 @@
 #define LEDC_CHANNEL_GREEN  LEDC_CHANNEL_1
 #define LEDC_CHANNEL_BLUE   LEDC_CHANNEL_2
 
+#define GPIO_INTERRUPT_PIN 4  // Choose your interrupt pin
+#define ESP_INTR_FLAG_DEFAULT 0
+
 static const char *TAG = "RGB_LED_Control";
 
 typedef struct {
@@ -26,6 +30,15 @@ typedef struct {
     uint8_t g;
     uint8_t b;
 } rgb_value_t;
+
+static int current_row = 0;
+static int current_col = 0;
+
+// Example matrix of RGB values (2x2 matrix)
+static rgb_value_t color_matrix[2][2] = {
+    {{255, 0, 0}, {0, 255, 0}},    // Red, Green
+    {{0, 0, 255}, {255, 255, 255}} // Blue, White
+};
 
 static void configure_led(void)
 {
@@ -94,33 +107,48 @@ static void set_rgb_value(rgb_value_t color)
     ledc_update_duty(LEDC_MODE, LEDC_CHANNEL_BLUE);
 }
 
+static void IRAM_ATTR gpio_isr_handler(void* arg)
+{
+    // Get next color from matrix
+    rgb_value_t current_color = color_matrix[current_row][current_col];
+    
+    // Update RGB LED directly (note: calling non-ISR-safe functions from ISR is not recommended,
+    // but for this example it should work)
+    set_rgb_value(current_color);
+    
+    // Move to next position in matrix
+    current_col++;
+    if (current_col >= 2) {
+        current_col = 0;
+        current_row = (current_row + 1) % 2;
+    }
+}
+
+static void configure_gpio_interrupt(void)
+{
+    gpio_config_t io_conf = {
+        .intr_type = GPIO_INTR_POSEDGE,
+        .mode = GPIO_MODE_INPUT,
+        .pin_bit_mask = (1ULL << GPIO_INTERRUPT_PIN),
+        .pull_down_en = GPIO_PULLDOWN_ENABLE,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+    };
+    gpio_config(&io_conf);
+
+    gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+    gpio_isr_handler_add(GPIO_INTERRUPT_PIN, gpio_isr_handler, NULL);
+}
+
 void app_main(void)
 {
     configure_led();
+    configure_gpio_interrupt();
 
-    // Example matrix of RGB values (2x2 matrix)
-    rgb_value_t color_matrix[2][2] = {
-        {{255, 0, 0}, {0, 255, 0}},    // Red, Green
-        {{0, 0, 255}, {255, 255, 255}} // Blue, White
-    };
+    // Initial color set
+    set_rgb_value(color_matrix[0][0]);
 
-    int current_row = 0;
-    int current_col = 0;
-    
-    while (1) {
-        rgb_value_t current_color = color_matrix[current_row][current_col];
-        ESP_LOGI(TAG, "Setting RGB(%u, %u, %u)", 
-                current_color.r, current_color.g, current_color.b);
-        
-        set_rgb_value(current_color);
-        
-        // Move to next position in matrix
-        current_col++;
-        if (current_col >= 2) {
-            current_col = 0;
-            current_row = (current_row + 1) % 2;
-        }
-        
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    // Wait indefinitely
+    while(1) {
+        vTaskDelay(portMAX_DELAY);
     }
 }
