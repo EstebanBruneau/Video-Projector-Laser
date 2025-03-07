@@ -57,26 +57,30 @@ void app_main(void)
     uint32_t duty = 0;
     uint32_t max_duty = (1 << LEDC_DUTY_RES) - 1; // Maximum duty cycle value
     int direction = 1; // 1 for increasing, -1 for decreasing
+    uint32_t step = max_duty / 20;
 
     while (1) {
         // Set the LED intensity
         ESP_LOGI(TAG, "LED intensity: %" PRIu32, duty);
         set_led_intensity(duty);
-        vTaskDelay(BLINK_PERIOD / portTICK_PERIOD_MS); // Wait for the blink period
+        vTaskDelay(BLINK_PERIOD / portTICK_PERIOD_MS);
 
         // Update the duty cycle
         if (direction == 1) {
-            duty += max_duty / 20;
-            if (duty >= max_duty) {
+            if (duty >= (max_duty - step)) {
                 duty = max_duty;
                 direction = -1;
                 ESP_LOGI(TAG, "Reached max duty, changing direction to decreasing");
+            } else {
+                duty += step;
             }
         } else {
-            duty -= max_duty / 20;
-            if (duty == 0) {
+            if (duty <= step) {
+                duty = 0;
                 direction = 1;
                 ESP_LOGI(TAG, "Reached min duty, changing direction to increasing");
+            } else {
+                duty -= step;
             }
         }
     }
