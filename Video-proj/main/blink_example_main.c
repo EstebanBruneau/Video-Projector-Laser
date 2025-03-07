@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <inttypes.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/ledc.h"
@@ -59,7 +60,7 @@ void app_main(void)
 
     while (1) {
         // Set the LED intensity
-        ESP_LOGI(TAG, "LED intensity: %u", duty);
+        ESP_LOGI(TAG, "LED intensity: %" PRIu32, duty);
         set_led_intensity(duty);
         vTaskDelay(BLINK_PERIOD / portTICK_PERIOD_MS); // Wait for the blink period
 
