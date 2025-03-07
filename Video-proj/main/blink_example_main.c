@@ -25,7 +25,7 @@
 #define ESP_INTR_FLAG_DEFAULT 0
 
 #define TIMER_RESOLUTION_HZ     1000000  // 1MHz resolution
-#define TIMER_INTERVAL_SEC      1        // 1 second interval
+#define TIMER_INTERVAL_SEC      0.000001       
 
 static const char *TAG = "RGB_LED_Control";
 
