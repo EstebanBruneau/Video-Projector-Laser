@@ -5,9 +5,9 @@
 #include "driver/ledc.h"
 #include "esp_log.h"
 
-#define LED_RED_GPIO    21
-#define LED_GREEN_GPIO  22
-#define LED_BLUE_GPIO   23
+#define LED_GREEN_GPIO    21
+#define LED_RED_GPIO  39
+#define LED_BLUE_GPIO   2
 
 #define LEDC_TIMER          LEDC_TIMER_0
 #define LEDC_MODE           LEDC_LOW_SPEED_MODE
