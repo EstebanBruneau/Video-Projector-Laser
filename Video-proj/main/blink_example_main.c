@@ -4,6 +4,7 @@
 #include "freertos/task.h"
 #include "driver/ledc.h"
 #include "driver/gpio.h"
+#include "driver/timer.h"
 #include "esp_log.h"
 
 #define LED_GREEN_GPIO    21
@@ -22,6 +23,10 @@
 
 #define GPIO_INTERRUPT_PIN 4  // Choose your interrupt pin
 #define ESP_INTR_FLAG_DEFAULT 0
+
+#define TIMER_DIVIDER         (16)
+#define TIMER_SCALE          (TIMER_BASE_CLK / TIMER_DIVIDER)
+#define TIMER_INTERVAL_SEC   (1) // 1 second interval
 
 static const char *TAG = "RGB_LED_Control";
 
@@ -124,6 +129,13 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
     }
 }
 
+static bool IRAM_ATTR timer_group_isr_callback(void *args)
+{
+    // Simulate GPIO interrupt
+    gpio_isr_handler(NULL);
+    return pdTRUE;
+}
+
 static void configure_gpio_interrupt(void)
 {
     gpio_config_t io_conf = {
@@ -139,10 +151,29 @@ static void configure_gpio_interrupt(void)
     gpio_isr_handler_add(GPIO_INTERRUPT_PIN, gpio_isr_handler, NULL);
 }
 
+static void configure_timer(void)
+{
+    timer_config_t config = {
+        .divider = TIMER_DIVIDER,
+        .counter_dir = TIMER_COUNT_UP,
+        .counter_en = TIMER_PAUSE,
+        .alarm_en = TIMER_ALARM_EN,
+        .auto_reload = true,
+    };
+    
+    timer_init(TIMER_GROUP_0, TIMER_0, &config);
+    timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0);
+    timer_set_alarm_value(TIMER_GROUP_0, TIMER_0, TIMER_SCALE * TIMER_INTERVAL_SEC);
+    timer_enable_intr(TIMER_GROUP_0, TIMER_0);
+    timer_isr_callback_add(TIMER_GROUP_0, TIMER_0, timer_group_isr_callback, NULL, 0);
+    timer_start(TIMER_GROUP_0, TIMER_0);
+}
+
 void app_main(void)
 {
     configure_led();
     configure_gpio_interrupt();
+    configure_timer();  // Add timer configuration
 
     // Initial color set
     set_rgb_value(color_matrix[0][0]);
