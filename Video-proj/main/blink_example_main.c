@@ -57,9 +57,16 @@ void app_main(void)
     uint32_t max_duty = (1 << LEDC_DUTY_RES) - 1; // Maximum duty cycle value
 
     while (1) {
+        // Turn on the LED with increasing intensity
         ESP_LOGI(TAG, "LED intensity: %d", duty);
         set_led_intensity(duty);
-        duty = (duty + max_duty / 10) % max_duty; // Increase intensity
-        vTaskDelay(BLINK_PERIOD / portTICK_PERIOD_MS); // Attendre avant de changer l’état
+        vTaskDelay(BLINK_PERIOD / portTICK_PERIOD_MS); // Wait for the blink period
+
+        // Turn off the LED
+        set_led_intensity(0);
+        vTaskDelay(BLINK_PERIOD / portTICK_PERIOD_MS); // Wait for the blink period
+
+        // Increase intensity
+        duty = (duty + max_duty / 10) % max_duty;
     }
 }
