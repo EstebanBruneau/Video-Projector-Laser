@@ -5,7 +5,7 @@
 #include "esp_log.h"
 
 #define BLINK_GPIO 21  // ⚡ Change ce numéro selon le GPIO de ta LED
-#define BLINK_PERIOD 1000 // Temps en ms entre chaque changement d'état
+#define BLINK_PERIOD 100 // Temps en ms entre chaque changement d'état
 #define LEDC_TIMER          LEDC_TIMER_0
 #define LEDC_MODE           LEDC_LOW_SPEED_MODE
 #define LEDC_OUTPUT_IO      (BLINK_GPIO) // Define the output GPIO
@@ -18,7 +18,7 @@ static uint8_t s_led_state = 0; // État de la LED (0 = OFF, 1 = ON)
 
 static void configure_led(void)
 {
-    ESP_LOGI(TAG, "Configuration de la LED sur GPIO %d", BLINK_GPIO);
+    ESP_LOGI(TAG, "Configuration de la LED sur GPIO %u", BLINK_GPIO);
 
     // Prepare and then apply the LEDC PWM timer configuration
     ledc_timer_config_t ledc_timer = {
@@ -55,18 +55,26 @@ void app_main(void)
 
     uint32_t duty = 0;
     uint32_t max_duty = (1 << LEDC_DUTY_RES) - 1; // Maximum duty cycle value
+    int direction = 1; // 1 for increasing, -1 for decreasing
 
     while (1) {
-        // Turn on the LED with increasing intensity
-        ESP_LOGI(TAG, "LED intensity: %d", duty);
+        // Set the LED intensity
+        ESP_LOGI(TAG, "LED intensity: %u", duty);
         set_led_intensity(duty);
         vTaskDelay(BLINK_PERIOD / portTICK_PERIOD_MS); // Wait for the blink period
 
-        // Turn off the LED
-        set_led_intensity(0);
-        vTaskDelay(BLINK_PERIOD / portTICK_PERIOD_MS); // Wait for the blink period
-
-        // Increase intensity
-        duty = (duty + max_duty / 10) % max_duty;
+        // Update the duty cycle
+        if (direction == 1) {
+            duty += max_duty / 20;
+            if (duty >= max_duty) {
+                duty = max_duty;
+                direction = -1;
+            }
+        } else {
+            duty -= max_duty / 20;
+            if (duty == 0) {
+                direction = 1;
+            }
+        }
     }
 }
