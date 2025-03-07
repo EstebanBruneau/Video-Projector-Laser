@@ -4,7 +4,7 @@
 #include "freertos/task.h"
 #include "driver/ledc.h"
 #include "driver/gpio.h"
-#include "driver/timer.h"
+#include "driver/gptimer.h"
 #include "esp_log.h"
 
 #define LED_GREEN_GPIO    21
@@ -24,9 +24,8 @@
 #define GPIO_INTERRUPT_PIN 4  // Choose your interrupt pin
 #define ESP_INTR_FLAG_DEFAULT 0
 
-#define TIMER_DIVIDER         (16)
-#define TIMER_SCALE          (TIMER_BASE_CLK / TIMER_DIVIDER)
-#define TIMER_INTERVAL_SEC   (1) // 1 second interval
+#define TIMER_RESOLUTION_HZ     1000000  // 1MHz resolution
+#define TIMER_INTERVAL_SEC      1        // 1 second interval
 
 static const char *TAG = "RGB_LED_Control";
 
@@ -129,7 +128,7 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
     }
 }
 
-static bool IRAM_ATTR timer_group_isr_callback(void *args)
+static bool IRAM_ATTR timer_callback(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_data)
 {
     // Simulate GPIO interrupt
     gpio_isr_handler(NULL);
@@ -153,20 +152,27 @@ static void configure_gpio_interrupt(void)
 
 static void configure_timer(void)
 {
-    timer_config_t config = {
-        .divider = TIMER_DIVIDER,
-        .counter_dir = TIMER_COUNT_UP,
-        .counter_en = TIMER_PAUSE,
-        .alarm_en = TIMER_ALARM_EN,
-        .auto_reload = true,
+    gptimer_handle_t gptimer = NULL;
+    gptimer_config_t timer_config = {
+        .clk_src = GPTIMER_CLK_SRC_DEFAULT,
+        .direction = GPTIMER_COUNT_UP,
+        .resolution_hz = TIMER_RESOLUTION_HZ,
     };
-    
-    timer_init(TIMER_GROUP_0, TIMER_0, &config);
-    timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0);
-    timer_set_alarm_value(TIMER_GROUP_0, TIMER_0, TIMER_SCALE * TIMER_INTERVAL_SEC);
-    timer_enable_intr(TIMER_GROUP_0, TIMER_0);
-    timer_isr_callback_add(TIMER_GROUP_0, TIMER_0, timer_group_isr_callback, NULL, 0);
-    timer_start(TIMER_GROUP_0, TIMER_0);
+    ESP_ERROR_CHECK(gptimer_new_timer(&timer_config, &gptimer));
+
+    gptimer_alarm_config_t alarm_config = {
+        .reload_count = 0,
+        .alarm_count = TIMER_RESOLUTION_HZ * TIMER_INTERVAL_SEC,
+        .flags.auto_reload_on_alarm = true,
+    };
+    ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &alarm_config));
+
+    gptimer_event_callbacks_t cbs = {
+        .on_alarm = timer_callback,
+    };
+    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, NULL));
+    ESP_ERROR_CHECK(gptimer_enable(gptimer));
+    ESP_ERROR_CHECK(gptimer_start(gptimer));
 }
 
 void app_main(void)
