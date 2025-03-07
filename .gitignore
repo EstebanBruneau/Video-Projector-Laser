@@ -5,3 +5,5 @@
 Makefile
 cmake_install.cmake
 **/build/
+.cproject
+.project
