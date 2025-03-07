@@ -70,11 +70,13 @@ void app_main(void)
             if (duty >= max_duty) {
                 duty = max_duty;
                 direction = -1;
+                ESP_LOGI(TAG, "Reached max duty, changing direction to decreasing");
             }
         } else {
             duty -= max_duty / 20;
             if (duty == 0) {
                 direction = 1;
+                ESP_LOGI(TAG, "Reached min duty, changing direction to increasing");
             }
         }
     }
