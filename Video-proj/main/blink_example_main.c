@@ -79,6 +79,14 @@ static volatile uint8_t current_col = 0;
 static volatile bool matrix_processing = false;
 static volatile bool line_processing = false;
 
+// Add this function before output_pixel
+static inline void IRAM_ATTR precise_delay_us(uint32_t us) {
+    uint32_t start = esp_timer_get_time();
+    while (esp_timer_get_time() - start < us) {
+        // busy wait
+    }
+}
+
 // Function to output RGB values for current pixel
 static void IRAM_ATTR output_pixel(uint8_t red, uint8_t green, uint8_t blue) {
     // Output red
