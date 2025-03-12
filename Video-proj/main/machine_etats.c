@@ -2,6 +2,8 @@
 #include "esp_timer.h"
 #include "esp_log.h"
 #include "esp_attr.h"  // Add this include for IRAM_ATTR
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 static const char* TAG = "VIDEO_PROJ";
 
@@ -180,7 +182,7 @@ void process_state(void) {
         case ETAT_ATTENTE_IMAGE:
             if (motor_interrupt_count == 0) {
                 ESP_LOGI(TAG, "Waiting for first motor interrupt...");
-                vTaskDelay(pdMS_TO_TICKS(1000));  // Log every second while waiting
+                vTaskDelay(pdMS_TO_TICKS(500));  // Reduced from 1000ms to 500ms
             }
             break;
 
@@ -202,7 +204,7 @@ void process_state(void) {
         case ETAT_ATTENTE_LIGNE:
             if (mirror_interrupt_count == 0) {
                 ESP_LOGI(TAG, "Waiting for first mirror interrupt...");
-                vTaskDelay(pdMS_TO_TICKS(100));  // Log every 100ms while waiting
+                vTaskDelay(pdMS_TO_TICKS(10));  // Reduced from 100ms to 10ms for faster response
             }
             break;
 
@@ -233,6 +235,6 @@ void app_main(void) {
     // Main loop
     while (1) {
         process_state();
-        vTaskDelay(pdMS_TO_TICKS(1));  // Small delay to prevent watchdog triggers
+        vTaskDelay(1);  // Minimal delay of 1 tick
     }
 }
