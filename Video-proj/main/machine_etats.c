@@ -72,6 +72,10 @@ static const uint8_t green_matrix[100][100][3] = {
 static const uint8_t (*current_matrix)[100][3] = red_matrix;
 static bool using_red_matrix = true;
 
+// Add debug counters
+static volatile uint32_t motor_interrupt_count = 0;
+static volatile uint32_t mirror_interrupt_count = 0;
+
 static void affiche_pixel(void) {
     uint8_t r = current_matrix[line_counter][pixel_counter][0];
     uint8_t g = current_matrix[line_counter][pixel_counter][1];
@@ -108,27 +112,35 @@ static void affiche_pixel(void) {
 }
 
 void IRAM_ATTR motor_rotation_isr(void* arg) {
+    motor_interrupt_count++;
     current_state = ETAT_SWAP_BUFFER;
-    ESP_LOGI(TAG, "Motor rotation detected - Switching to SWAP_BUFFER");
 }
 
 void IRAM_ATTR mirror_change_isr(void* arg) {
+    mirror_interrupt_count++;
     current_state = ETAT_AFFICHE_LIGNE;
     pixel_counter = 0;
-    ESP_LOGI(TAG, "Mirror change detected - Starting new line %d", line_counter);
 }
 
 void init_machine_etats(void) {
     // Configure GPIO pins
     gpio_config_t io_conf = {};
     
-    // Configure input pins
+    // Configure input pins with appropriate filtering
     io_conf.pin_bit_mask = (1ULL << MOTOR_PIN) | (1ULL << MIRROR_PIN);
     io_conf.mode = GPIO_MODE_INPUT;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     io_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
-    io_conf.intr_type = GPIO_INTR_POSEDGE;
+    io_conf.intr_type = GPIO_INTR_ANYEDGE;  // Changed from POSEDGE to ANYEDGE
     gpio_config(&io_conf);
+
+    // Set input filter parameters for more reliable detection
+    gpio_set_intr_type(MOTOR_PIN, GPIO_INTR_ANYEDGE);
+    gpio_set_intr_type(MIRROR_PIN, GPIO_INTR_ANYEDGE);
+    
+    // Enable glitch filter
+    gpio_set_glitch_filter(MOTOR_PIN, true);
+    gpio_set_glitch_filter(MIRROR_PIN, true);
 
     // Configure output pins
     io_conf.pin_bit_mask = 0;
@@ -146,12 +158,30 @@ void init_machine_etats(void) {
     gpio_install_isr_service(0);
     gpio_isr_handler_add(MOTOR_PIN, motor_rotation_isr, NULL);
     gpio_isr_handler_add(MIRROR_PIN, mirror_change_isr, NULL);
+
+    ESP_LOGI(TAG, "GPIO interrupt configuration complete");
 }
 
 void process_state(void) {
+    static uint32_t last_motor_count = 0;
+    static uint32_t last_mirror_count = 0;
+
+    // Log interrupt counts periodically
+    if (motor_interrupt_count != last_motor_count) {
+        ESP_LOGI(TAG, "Motor interrupts: %lu", motor_interrupt_count);
+        last_motor_count = motor_interrupt_count;
+    }
+    if (mirror_interrupt_count != last_mirror_count) {
+        ESP_LOGI(TAG, "Mirror interrupts: %lu", mirror_interrupt_count);
+        last_mirror_count = mirror_interrupt_count;
+    }
+
     switch(current_state) {
         case ETAT_ATTENTE_IMAGE:
-            // Wait for motor rotation interrupt
+            if (motor_interrupt_count == 0) {
+                ESP_LOGI(TAG, "Waiting for first motor interrupt...");
+                vTaskDelay(pdMS_TO_TICKS(1000));  // Log every second while waiting
+            }
             break;
 
         case ETAT_SWAP_BUFFER:
@@ -170,7 +200,10 @@ void process_state(void) {
             break;
 
         case ETAT_ATTENTE_LIGNE:
-            // Wait for mirror change interrupt
+            if (mirror_interrupt_count == 0) {
+                ESP_LOGI(TAG, "Waiting for first mirror interrupt...");
+                vTaskDelay(pdMS_TO_TICKS(100));  // Log every 100ms while waiting
+            }
             break;
 
         case ETAT_AFFICHE_LIGNE:
@@ -195,8 +228,11 @@ void app_main(void) {
     ESP_LOGI(TAG, "Initializing state machine");
     init_machine_etats();
     ESP_LOGI(TAG, "State machine initialized, starting main loop");
+    ESP_LOGI(TAG, "Expecting: Motor frequency=10Hz, Mirror frequency=1kHz");
     
+    // Main loop
     while (1) {
         process_state();
+        vTaskDelay(pdMS_TO_TICKS(1));  // Small delay to prevent watchdog triggers
     }
 }
