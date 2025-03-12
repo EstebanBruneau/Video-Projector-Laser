@@ -16,9 +16,8 @@ static const char *TAG = "GPIO_Interrupt";
 // Interrupt handler
 static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
-    // Toggle the state of the LED_GREEN_GPIO
-    int level = gpio_get_level(LED_GREEN_GPIO);
-    gpio_set_level(LED_GREEN_GPIO, !level);
+    int input_level = gpio_get_level(GPIO_INTERRUPT_PIN);
+    gpio_set_level(LED_GREEN_GPIO, input_level);
 }
 
 static void configure_gpio(void)
