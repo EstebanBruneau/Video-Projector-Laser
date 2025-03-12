@@ -4,7 +4,7 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
-#include "esp_timer.h"
+#include "driver/gptimer.h"
 
 #define GPIO_INPUT_PIN     4
 #define GPIO_OUTPUT_PIN    21
@@ -14,10 +14,43 @@
 
 static const char *TAG = "Signal_Repeater";
 
-// Function to generate precise delays using esp_timer
-static inline void precise_delay_us(uint32_t us) {
-    uint32_t start = esp_timer_get_time();
-    while (esp_timer_get_time() - start < us);
+static gptimer_handle_t gptimer = NULL;
+static volatile bool timer_expired = false;
+
+static bool IRAM_ATTR timer_on_alarm_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx) {
+    timer_expired = true;
+    return false;
+}
+
+static void timer_init(void) {
+    gptimer_config_t timer_config = {
+        .clk_src = GPTIMER_CLK_SRC_DEFAULT,
+        .direction = GPTIMER_COUNT_UP,
+        .resolution_hz = 1000000, // 1MHz, 1 tick = 1us
+    };
+    ESP_ERROR_CHECK(gptimer_new_timer(&timer_config, &gptimer));
+
+    gptimer_event_callbacks_t cbs = {
+        .on_alarm = timer_on_alarm_cb,
+    };
+    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, NULL));
+    ESP_ERROR_CHECK(gptimer_enable(gptimer));
+}
+
+static void IRAM_ATTR precise_delay_us(uint32_t us) {
+    timer_expired = false;
+    gptimer_alarm_config_t alarm_config = {
+        .alarm_count = us,
+        .reload_count = 0,
+        .flags.auto_reload_on_alarm = false
+    };
+    gptimer_set_raw_count(gptimer, 0);
+    gptimer_set_alarm_action(gptimer, &alarm_config);
+    gptimer_start(gptimer);
+    while (!timer_expired) {
+        // Wait for timer
+    }
+    gptimer_stop(gptimer);
 }
 
 // Function to generate multiple pulses
@@ -65,6 +98,7 @@ static void configure_gpio(void) {
 
 void app_main(void)
 {
+    timer_init();
     configure_gpio();
     
     // Initial state of the output
