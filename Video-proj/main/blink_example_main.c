@@ -79,55 +79,34 @@ static volatile uint8_t current_col = 0;
 static volatile bool matrix_processing = false;
 static volatile bool line_processing = false;
 
-// Function to simultaneously set color select and data pins
+// Function to output RGB values for current pixel
 static void IRAM_ATTR output_pixel(uint8_t red, uint8_t green, uint8_t blue) {
-    // First color (Red)
+    // Output red
     gpio_set_level(RED_SELECT_PIN, 1);
     gpio_set_level(GREEN_SELECT_PIN, 0);
     gpio_set_level(BLUE_SELECT_PIN, 0);
-    uint32_t gpio_mask = 0;
     for(int i = 0; i < 8; i++) {
-        if((red >> i) & 1) {
-            gpio_mask |= (1ULL << (DATA_PIN_0 + i));
-        }
+        gpio_set_level(DATA_PIN_0 + i, (red >> i) & 1);
     }
-    GPIO.out_w1ts.val = gpio_mask;
-    GPIO.out_w1tc.val = (~gpio_mask) & ((1ULL << (DATA_PIN_0 + 8)) - (1ULL << DATA_PIN_0));
     precise_delay_us(PULSE_DELAY_US);
 
-    // Second color (Green)
+    // Output green
     gpio_set_level(RED_SELECT_PIN, 0);
     gpio_set_level(GREEN_SELECT_PIN, 1);
     gpio_set_level(BLUE_SELECT_PIN, 0);
-    gpio_mask = 0;
     for(int i = 0; i < 8; i++) {
-        if((green >> i) & 1) {
-            gpio_mask |= (1ULL << (DATA_PIN_0 + i));
-        }
+        gpio_set_level(DATA_PIN_0 + i, (green >> i) & 1);
     }
-    GPIO.out_w1ts.val = gpio_mask;
-    GPIO.out_w1tc.val = (~gpio_mask) & ((1ULL << (DATA_PIN_0 + 8)) - (1ULL << DATA_PIN_0));
     precise_delay_us(PULSE_DELAY_US);
 
-    // Third color (Blue)
+    // Output blue
     gpio_set_level(RED_SELECT_PIN, 0);
     gpio_set_level(GREEN_SELECT_PIN, 0);
     gpio_set_level(BLUE_SELECT_PIN, 1);
-    gpio_mask = 0;
     for(int i = 0; i < 8; i++) {
-        if((blue >> i) & 1) {
-            gpio_mask |= (1ULL << (DATA_PIN_0 + i));
-        }
+        gpio_set_level(DATA_PIN_0 + i, (blue >> i) & 1);
     }
-    GPIO.out_w1ts.val = gpio_mask;
-    GPIO.out_w1tc.val = (~gpio_mask) & ((1ULL << (DATA_PIN_0 + 8)) - (1ULL << DATA_PIN_0));
     precise_delay_us(PULSE_DELAY_US);
-
-    // Reset all pins to 0
-    gpio_set_level(RED_SELECT_PIN, 0);
-    gpio_set_level(GREEN_SELECT_PIN, 0);
-    gpio_set_level(BLUE_SELECT_PIN, 0);
-    GPIO.out_w1tc.val = ((1ULL << (DATA_PIN_0 + 8)) - (1ULL << DATA_PIN_0));
 }
 
 // Motor signal ISR (Pin 4)
