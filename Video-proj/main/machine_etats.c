@@ -3,6 +3,8 @@
 #include "esp_log.h"
 #include "esp_attr.h"  // Add this include for IRAM_ATTR
 
+static const char* TAG = "VIDEO_PROJ";
+
 // States definition
 #define ETAT_ATTENTE_IMAGE 0
 #define ETAT_SWAP_BUFFER   1
@@ -75,40 +77,45 @@ static void affiche_pixel(void) {
     uint8_t g = current_matrix[line_counter][pixel_counter][1];
     uint8_t b = current_matrix[line_counter][pixel_counter][2];
 
-    // Set RGB select pins low
+    // Set all RGB select pins low initially
     gpio_set_level(RED_SELECT_PIN, 0);
     gpio_set_level(GREEN_SELECT_PIN, 0);
     gpio_set_level(BLUE_SELECT_PIN, 0);
 
-    // Set 8-bit color data for Red
+    // Set and display Red
     for(int i = 0; i < 8; i++) {
         gpio_set_level(DATA_PINS[i], (r >> i) & 0x01);
     }
     gpio_set_level(RED_SELECT_PIN, 1);
     esp_rom_delay_us(10);
+    gpio_set_level(RED_SELECT_PIN, 0);  // Turn off red before moving to green
 
-    // Set 8-bit color data for Green
+    // Set and display Green
     for(int i = 0; i < 8; i++) {
         gpio_set_level(DATA_PINS[i], (g >> i) & 0x01);
     }
     gpio_set_level(GREEN_SELECT_PIN, 1);
     esp_rom_delay_us(10);
+    gpio_set_level(GREEN_SELECT_PIN, 0);  // Turn off green before moving to blue
 
-    // Set 8-bit color data for Blue
+    // Set and display Blue
     for(int i = 0; i < 8; i++) {
         gpio_set_level(DATA_PINS[i], (b >> i) & 0x01);
     }
     gpio_set_level(BLUE_SELECT_PIN, 1);
     esp_rom_delay_us(10);
+    gpio_set_level(BLUE_SELECT_PIN, 0);  // Turn off blue when done
 }
 
 void IRAM_ATTR motor_rotation_isr(void* arg) {
     current_state = ETAT_SWAP_BUFFER;
+    ESP_LOGI(TAG, "Motor rotation detected - Switching to SWAP_BUFFER");
 }
 
 void IRAM_ATTR mirror_change_isr(void* arg) {
     current_state = ETAT_AFFICHE_LIGNE;
     pixel_counter = 0;
+    ESP_LOGI(TAG, "Mirror change detected - Starting new line %d", line_counter);
 }
 
 void init_machine_etats(void) {
@@ -154,9 +161,11 @@ void process_state(void) {
                     using_red_matrix = !using_red_matrix;
                     current_matrix = using_red_matrix ? red_matrix : green_matrix;
                     last_swap_time = current_time;
+                    ESP_LOGI(TAG, "Buffer swapped to %s matrix", using_red_matrix ? "RED" : "GREEN");
                 }
                 line_counter = 0;
                 current_state = ETAT_ATTENTE_LIGNE;
+                ESP_LOGI(TAG, "Switching to ATTENTE_LIGNE state");
             }
             break;
 
@@ -172,8 +181,10 @@ void process_state(void) {
                 line_counter++;
                 if(line_counter >= LINES_PER_FRAME) {
                     current_state = ETAT_ATTENTE_IMAGE;
+                    ESP_LOGI(TAG, "Frame complete - Switching to ATTENTE_IMAGE");
                 } else {
                     current_state = ETAT_ATTENTE_LIGNE;
+                    ESP_LOGI(TAG, "Line complete - Waiting for next line");
                 }
             }
             break;
@@ -181,12 +192,11 @@ void process_state(void) {
 }
 
 void app_main(void) {
-    // Initialize the state machine
+    ESP_LOGI(TAG, "Initializing state machine");
     init_machine_etats();
+    ESP_LOGI(TAG, "State machine initialized, starting main loop");
     
-    // Main loop
     while (1) {
         process_state();
-        vTaskDelay(pdMS_TO_TICKS(1)); // Small delay to prevent CPU overload
     }
 }
