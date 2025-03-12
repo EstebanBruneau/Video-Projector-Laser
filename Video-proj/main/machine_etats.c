@@ -11,8 +11,8 @@
 // Function declarations
 void init_machine_etats(void);
 void process_state(void);
-void IRAM_ATTR motor_rotation_isr(void* arg);
-void IRAM_ATTR mirror_change_isr(void* arg);
+static void IRAM_ATTR motor_rotation_isr(void* arg);
+static void IRAM_ATTR mirror_change_isr(void* arg);
 
 // Input pins
 #define MOTOR_PIN           4   // GPIO4  - Motor rotation detection
