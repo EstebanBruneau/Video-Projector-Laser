@@ -1,6 +1,7 @@
 #include "driver/gpio.h"
 #include "esp_timer.h"
 #include "esp_log.h"
+#include "esp_attr.h"  // Add this include for IRAM_ATTR
 
 // States definition
 #define ETAT_ATTENTE_IMAGE 0
@@ -11,8 +12,8 @@
 // Function declarations
 void init_machine_etats(void);
 void process_state(void);
-static void IRAM_ATTR motor_rotation_isr(void* arg);
-static void IRAM_ATTR mirror_change_isr(void* arg);
+void motor_rotation_isr(void* arg);  // Remove static and IRAM_ATTR from declaration
+void mirror_change_isr(void* arg);   // Remove static and IRAM_ATTR from declaration
 
 // Input pins
 #define MOTOR_PIN           4   // GPIO4  - Motor rotation detection
