@@ -20,13 +20,23 @@ static inline void precise_delay_us(uint32_t us) {
     while (esp_timer_get_time() - start < us);
 }
 
-// Function to generate multiple pulses
+// Function to generate multiple pulses with improved precision
 static void IRAM_ATTR generate_pulses(void) {
-    for (int i = 0; i < PULSE_COUNT; i++) {
-        gpio_set_level(GPIO_OUTPUT_PIN, 1);
-        precise_delay_us(PULSE_DELAY_US);
-        gpio_set_level(GPIO_OUTPUT_PIN, 0);
-        precise_delay_us(PULSE_DELAY_US);
+    uint32_t start_time = esp_timer_get_time();
+    uint32_t next_edge = start_time;
+    const uint32_t period = PULSE_DELAY_US * 2;  // Total period for one complete cycle
+
+    for (int i = 0; i < PULSE_COUNT * 2; i++) {  // Multiply by 2 to handle both edges
+        // Calculate the absolute time for the next edge
+        next_edge = start_time + (i * PULSE_DELAY_US);
+        
+        // Set output level (alternating high/low)
+        gpio_set_level(GPIO_OUTPUT_PIN, i % 2);
+        
+        // Wait until we reach the next edge time
+        while (esp_timer_get_time() < next_edge) {
+            // Tight loop for precise timing
+        }
     }
 }
 
