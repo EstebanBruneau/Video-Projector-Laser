@@ -9,7 +9,7 @@
 #define GPIO_INPUT_PIN     4
 #define GPIO_OUTPUT_PIN    21
 #define ESP_INTR_FLAG_DEFAULT 0
-#define PULSE_COUNT       40  // Number of complete cycles (high+low)
+#define PULSE_COUNT       10  // Number of complete cycles (high+low)
 #define PULSE_DELAY_US    10  // Delay between state changes in microseconds
 
 static const char *TAG = "Signal_Repeater";
@@ -22,21 +22,23 @@ static inline void precise_delay_us(uint32_t us) {
 
 // Function to generate multiple pulses with improved precision
 static void IRAM_ATTR generate_pulses(void) {
+    // Ensure we start from a known state
+    gpio_set_level(GPIO_OUTPUT_PIN, 0);
+    
     uint32_t start_time = esp_timer_get_time();
-    uint32_t next_edge = start_time;
-    const uint32_t period = PULSE_DELAY_US * 2;  // Total period for one complete cycle
-
-    for (int i = 0; i < PULSE_COUNT * 2; i++) {  // Multiply by 2 to handle both edges
-        // Calculate the absolute time for the next edge
-        next_edge = start_time + (i * PULSE_DELAY_US);
+    uint32_t next_edge;
+    
+    // Generate exact square wave pulses
+    for (int i = 0; i < PULSE_COUNT; i++) {
+        // Rising edge
+        next_edge = start_time + (i * 2 * PULSE_DELAY_US);
+        while (esp_timer_get_time() < next_edge);
+        gpio_set_level(GPIO_OUTPUT_PIN, 1);
         
-        // Set output level (alternating high/low)
-        gpio_set_level(GPIO_OUTPUT_PIN, i % 2);
-        
-        // Wait until we reach the next edge time
-        while (esp_timer_get_time() < next_edge) {
-            // Tight loop for precise timing
-        }
+        // Falling edge
+        next_edge = start_time + (i * 2 * PULSE_DELAY_US) + PULSE_DELAY_US;
+        while (esp_timer_get_time() < next_edge);
+        gpio_set_level(GPIO_OUTPUT_PIN, 0);
     }
 }
 
