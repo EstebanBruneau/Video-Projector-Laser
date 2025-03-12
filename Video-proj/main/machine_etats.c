@@ -179,3 +179,14 @@ void process_state(void) {
             break;
     }
 }
+
+void app_main(void) {
+    // Initialize the state machine
+    init_machine_etats();
+    
+    // Main loop
+    while (1) {
+        process_state();
+        vTaskDelay(pdMS_TO_TICKS(1)); // Small delay to prevent CPU overload
+    }
+}
