@@ -1,7 +1,10 @@
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "driver/gpio.h"
 #include "esp_timer.h"
 #include "esp_log.h"
 #include "esp_attr.h"  // Add this include for IRAM_ATTR
+#include "inttypes.h" // For PRIu32 macros
 
 // States definition
 #define ETAT_ATTENTE_IMAGE 0
