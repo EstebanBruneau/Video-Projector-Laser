@@ -88,14 +88,18 @@ void affiche_pixel(){
 
 int main(){
     setup();
+    int pixel_counter = 0;
+    int line_counter = 0;
     while(1){
         switch(state){
             case STATE_ATTENTE_IMAGE:
+                line_counter = 0;
                 break;
             case STATE_SWAP_BUFFER:
                 swap_buffer();
                 break;
             case STATE_ATTENTE_LIGNE:
+                pixel_counter = 0;
                 break;
             case STATE_AFFICHE_LIGNE:
                 affiche_pixel();
