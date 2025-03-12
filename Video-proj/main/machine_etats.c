@@ -19,19 +19,19 @@ void IRAM_ATTR mirror_change_isr(void* arg);
 #define MIRROR_PIN          5   // GPIO5  - Mirror position detection
 
 // RGB select pins
-#define RED_SELECT_PIN     22   // GPIO22 - Red color select
-#define GREEN_SELECT_PIN   23   // GPIO23 - Green color select
-#define BLUE_SELECT_PIN    25   // GPIO25 - Blue color select
+#define RED_SELECT_PIN     15   // GPIO15 - Red color select
+#define GREEN_SELECT_PIN   16   // GPIO16 - Green color select
+#define BLUE_SELECT_PIN    17   // GPIO17 - Blue color select
 
 // 8-bit data bus pins
-#define DATA_PIN_0         26   // GPIO26 - Data bit 0 (LSB)
-#define DATA_PIN_1         27   // GPIO27 - Data bit 1
-#define DATA_PIN_2         28   // GPIO28 - Data bit 2
-#define DATA_PIN_3         29   // GPIO29 - Data bit 3
-#define DATA_PIN_4         30   // GPIO30 - Data bit 4
-#define DATA_PIN_5         31   // GPIO31 - Data bit 5
-#define DATA_PIN_6         32   // GPIO32 - Data bit 6
-#define DATA_PIN_7         33   // GPIO33 - Data bit 7 (MSB)
+#define DATA_PIN_0         43   // GPIO43 - Data bit 0 (LSB)
+#define DATA_PIN_1         44   // GPIO44 - Data bit 1
+#define DATA_PIN_2         1   // GPIO1 - Data bit 2
+#define DATA_PIN_3         2   // GPIO2 - Data bit 3
+#define DATA_PIN_4         42   // GPIO42 - Data bit 4
+#define DATA_PIN_5         41   // GPIO41 - Data bit 5
+#define DATA_PIN_6         40   // GPIO40 - Data bit 6
+#define DATA_PIN_7         39   // GPIO39 - Data bit 7 (MSB)
 
 // Update COLOR_START_PIN to use first RGB select pin
 #define COLOR_START_PIN    RED_SELECT_PIN
