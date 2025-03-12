@@ -4,22 +4,40 @@
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 
-#define GPIO_INPUT_PIN     4  // Input pin for receiving square signal
-#define GPIO_OUTPUT_PIN    21 // Output pin for repeating square signal
+#define GPIO_INPUT_PIN     4
+#define GPIO_OUTPUT_PIN    21
 #define ESP_INTR_FLAG_DEFAULT 0
+#define PULSE_COUNT       50  // Number of complete cycles (high+low)
+#define PULSE_DELAY_US    10  // Delay between state changes in microseconds
 
 static const char *TAG = "Signal_Repeater";
 
-// Optimized interrupt handler for minimum latency
-static void IRAM_ATTR gpio_isr_handler(void* arg)
-{
-    // Direct read and write without storing in variable for minimum latency
-    gpio_set_level(GPIO_OUTPUT_PIN, gpio_get_level(GPIO_INPUT_PIN));
+// Function to generate precise delays using esp_timer
+static inline void precise_delay_us(uint32_t us) {
+    uint32_t start = esp_timer_get_time();
+    while (esp_timer_get_time() - start < us);
 }
 
-static void configure_gpio(void)
-{
+// Function to generate multiple pulses
+static void IRAM_ATTR generate_pulses(void) {
+    for (int i = 0; i < PULSE_COUNT; i++) {
+        gpio_set_level(GPIO_OUTPUT_PIN, 1);
+        precise_delay_us(PULSE_DELAY_US);
+        gpio_set_level(GPIO_OUTPUT_PIN, 0);
+        precise_delay_us(PULSE_DELAY_US);
+    }
+}
+
+static void IRAM_ATTR gpio_isr_handler(void* arg) {
+    // Only react to rising edge
+    if (gpio_get_level(GPIO_INPUT_PIN) == 1) {
+        generate_pulses();
+    }
+}
+
+static void configure_gpio(void) {
     // Configure output pin
     gpio_config_t io_conf = {
         .pin_bit_mask = (1ULL << GPIO_OUTPUT_PIN),
@@ -30,20 +48,19 @@ static void configure_gpio(void)
     };
     gpio_config(&io_conf);
 
-    // Configure input pin with interrupt on both edges
+    // Configure input pin with interrupt on rising edge only
     io_conf.pin_bit_mask = (1ULL << GPIO_INPUT_PIN);
     io_conf.mode = GPIO_MODE_INPUT;
     io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
     io_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
-    io_conf.intr_type = GPIO_INTR_ANYEDGE;  // Changed to trigger on both edges
+    io_conf.intr_type = GPIO_INTR_POSEDGE;  // Changed to trigger only on rising edge
     gpio_config(&io_conf);
 
-    // Install GPIO ISR service
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
     gpio_isr_handler_add(GPIO_INPUT_PIN, gpio_isr_handler, NULL);
 
     ESP_LOGI(TAG, "GPIO configured: Input pin %d, Output pin %d", GPIO_INPUT_PIN, GPIO_OUTPUT_PIN);
-    ESP_LOGI(TAG, "Interrupt set for both edges (rising and falling)");
+    ESP_LOGI(TAG, "Interrupt set for rising edge only");
 }
 
 void app_main(void)
