@@ -24,7 +24,7 @@ Manipulation de la matrice image (en fonction des besoins du groupe)
 
 Test de perf sur l'esp32 on a entre entre 2  et 8 ms de latences !!!!!
 
-A chaque front montant on envoi on envoi 100 pixels 10 ms de décalage 
+A chaque front montant on envoi on envoi 100 pixels 10 ms de décalage pour ce décalage on doit utiliser esp timer
 
 
 ## Objectif
