@@ -10,7 +10,7 @@
 #define GPIO_OUTPUT_PIN    21
 #define ESP_INTR_FLAG_DEFAULT 0
 #define PULSE_COUNT       10  // Number of complete cycles (high+low)
-#define PULSE_DELAY_US    10  // Delay between state changes in microseconds
+#define PULSE_DELAY_US    11  // Delay between state changes in microseconds
 
 static const char *TAG = "Signal_Repeater";
 
