@@ -24,8 +24,30 @@ Manipulation de la matrice image (en fonction des besoins du groupe)
 
 Test de perf sur l'esp32 on a entre entre 2  et 8 ms de latences !!!!!
 
-A chaque front montant on envoi on envoi 100 pixels 10 ms de décalage pour ce décalage on doit utiliser esp timer
+A chaque front montant on envoie 100 pixels 10 ms de décalage pour ce décalage on doit utiliser esp timer
 
+1- convertir les int de couleurs en bin on les envi sur 8 pin on a en plus 3 pin couleurs
+(Louis veut mesurer la rapidité de l'envoie des trois)
+
+
+## Machine à état
+
+On veut faire une machine à état, on a un état et dans main while(true){switch case} pour les état on les définis avec define
+
+Etat 1 : en attente image : c'est un interrupt qui écoute un pin qui est activé à un tour complet du moteur lent
+
+Etat 2 : swap buffer : déclenché après l'état 1, il change les images (1 image est chargé et l'autre est affichée)
+
+Etat 3 : en attente ligne : déclenché après l'état 2 c'est un interrupt en attente d'un changement de signale sur un pin c'est le changement d'état au changement de miroir du moteur rapide 
+
+Etat 4 : affche ligne est déclenché quand l'interrupt attente ligne est déclenché, l'état déclenche 100 fois affiche pixel
+
+Affiche pixel fonction callback appel toutes les 10 ms 100 fois
+
+Affiche pixel envoi 11 bit dans 11 sorties : 8 pour la couleur et 3 pour RGB ensuite il attent 10 ms
+et retourne à affiche ligne
+
+A faire: set up interrupt / fonctions apppelé / main witch switch 
 
 ## Objectif
 
