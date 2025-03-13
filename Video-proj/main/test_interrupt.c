@@ -16,7 +16,9 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
     // Get the current level of the input pin
     int level = gpio_get_level(GPIO_INPUT_PIN);
     // Set the LED to match the input level
-    gpio_set_level(GPIO_OUTPUT_PIN, level);
+    gpio_set_level(GPIO_OUTPUT_PIN, high);
+    // Print the level
+    ESP_LOGI(TAG, "GPIO interrupt level: %d", level);
 }
 
 static void configure_gpio(void)
