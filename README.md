@@ -7,6 +7,8 @@ raspi:
 Régler l'intensité lumineuse des LED
 Clock
 
+## Output de display_controller.c : 
+![alt text](image.png)
 
 
 Questions:
