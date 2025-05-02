@@ -19,7 +19,7 @@
 
 // Fonction pour afficher le compteur binaire
 void binary_counter() {
-  // Compte de 0 à 15 en binaire en utilisant une boucle
+  // Compte de 0 à 4095 en binaire en utilisant une boucle
   for (int i = 0; i < 4095; i++) {
     // Set each bit according to the binary representation of i
     digitalWrite(GPIO_DATA_PIN1, (i & 0x01) ? HIGH : LOW); // Bit 0 (LSB)
@@ -35,7 +35,7 @@ void binary_counter() {
     digitalWrite(GPIO_DATA_PIN11, (i & 0x400) ? HIGH : LOW); // Bit 10
     digitalWrite(GPIO_DATA_PIN12, (i & 0x800) ? HIGH : LOW); // Bit 11
     
-    delay(1000); // Wait a second before moving to the next number
+    delay(10); // Wait a second before moving to the next number
   }
 }
 
@@ -45,6 +45,14 @@ void setup() {
   pinMode(GPIO_DATA_PIN2, OUTPUT);
   pinMode(GPIO_DATA_PIN3, OUTPUT);
   pinMode(GPIO_DATA_PIN4, OUTPUT);
+  pinMode(GPIO_DATA_PIN5, OUTPUT);
+  pinMode(GPIO_DATA_PIN6, OUTPUT);
+  pinMode(GPIO_DATA_PIN7, OUTPUT);
+  pinMode(GPIO_DATA_PIN8, OUTPUT);
+  pinMode(GPIO_DATA_PIN9, OUTPUT);
+  pinMode(GPIO_DATA_PIN10, OUTPUT);
+  pinMode(GPIO_DATA_PIN11, OUTPUT);
+  pinMode(GPIO_DATA_PIN12, OUTPUT);
 }
 
 void loop() {
